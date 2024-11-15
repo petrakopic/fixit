@@ -29,6 +29,10 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Usage
+
+To use Fixit, simply add the `@fixit` mention to any issue you want the bot to address. Fixit will automatically analyze the issue, propose a solution, and open a pull request with the fix.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
