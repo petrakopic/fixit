@@ -29,10 +29,6 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Usage
-
-[Usage instructions coming soon]
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
