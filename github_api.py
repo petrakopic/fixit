@@ -46,11 +46,13 @@ class GithubClient:
         return None
 
     def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str) -> bool:
-        """Create a new pull request for the given issue."""
+        """Create a new pull request for the given issue.
+        The PR description includes the issue number and a brief description of the changes.
+        """
         try:
             pr = self.repo.create_pull(
                 title=title,
-                body=body,
+                body=f"This pull request addresses issue #{issue.number}. {body}",
                 head=head_branch,
                 base=base_branch
             )
