@@ -95,6 +95,7 @@ def main():
         logging.warning("Invalid issue data. Skipping processing.")
         return
 
+    os.environ['AIDER_CONFIG'] = str("aider.conf.yml")
     model = Model(MODEL)
     coder = Coder.create(main_model=model, fnames=files)
     result = execute_instructions(coder, instructions)
