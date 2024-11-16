@@ -66,7 +66,7 @@ def main():
     logging.info("****** Pushed branch")
     # Create a pull request
     logging.info("****** Creating pull request********")
-    github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}", title=f"Fixit for issue {issue.number}")
+    github_client.create_pull_request("main", branch_name, body=f"This pull request addresses issue #{issue.number}. The changes were made based on the instructions provided in the issue description.", title=f"Fix for issue #{issue.number}")
 
 if __name__ == "__main__":
     main()
