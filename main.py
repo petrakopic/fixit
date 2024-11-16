@@ -21,8 +21,9 @@ def main():
     # Configuration
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
-    print(f"Repo name: {REPO_NAME}")
+        logging.error("ANTHROPIC_API_KEY environment variable is not set")
+        return
+    logging.info(f"Repo name: {REPO_NAME}")
     # Initialize components
     github_client = GithubClient(REPO_NAME)
 
@@ -33,7 +34,7 @@ def main():
         return
 
     branch_name = re.sub(" ","_", issue.title.lower())
-    print(f"****** Branch name: {branch_name}")
+    logging.info(f"****** Branch name: {branch_name}")
 
     git_client=git_api.GitManager(REPO_NAME)
     git_client.checkout("main")
@@ -44,8 +45,8 @@ def main():
     parsed_issue = parser.parse_description(issue.body)
     instructions = parsed_issue.get("instructions")
     files = parsed_issue.get("files")
-    print(f"****** Instructions: {instructions}")
-    print(f"****** Files: {files}")
+    logging.info(f"****** Instructions: {instructions}")
+    logging.info(f"****** Files: {files}")
 
     if not instructions or not files:
         logging.warning("Invalid issue data. Skipping processing.")
@@ -59,12 +60,12 @@ def main():
 
     # This will execute one instruction on those files and then return
     result=coder.run(f"{instructions[0]}")
-    print(f"****** Result: {result}")
+    logging.info(f"****** Result: {result}")
 
     git_client.push(branch_name)
-    print("****** Pushed branch")
+    logging.info("****** Pushed branch")
     # Create a pull request
-    print("****** Creating pull request********")
+    logging.info("****** Creating pull request********")
     github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}", title=f"Fixit for issue {issue.number}")
 
 if __name__ == "__main__":
