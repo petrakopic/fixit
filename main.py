@@ -8,13 +8,9 @@ from issue_parser import IssueDescriptionParser
 from aider.coders import Coder
 from aider.models import Model
 
-model = "claude-3-haiku-20240307"
+from config import REPO_NAME, USERNAME, MODEL, ANTHROPIC_API_KEY
 
 logging.basicConfig(level=logging.INFO)
-
-USERNAME = "petrakopic"
-MODEL = "claude-3-haiku-20240307"
-REPO_NAME = "petrakopic/fixit"
 
 
 def configure_logging():
@@ -22,7 +18,7 @@ def configure_logging():
 
 
 def get_anthropic_api_key():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = ANTHROPIC_API_KEY
     if not api_key:
         logging.error("ANTHROPIC_API_KEY environment variable is not set")
         return None
@@ -95,6 +91,7 @@ def main():
         logging.warning("Invalid issue data. Skipping processing.")
         return
 
+    os.environ['AIDER_CONFIG'] = str("aider.conf.yml")
     model = Model(MODEL)
     coder = Coder.create(main_model=model, fnames=files)
     result = execute_instructions(coder, instructions)
