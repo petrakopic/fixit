@@ -45,15 +45,17 @@ class GithubClient:
                 return issue
         return None
 
-    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str) -> bool:
+    def create_pull_request(self, base_branch: str, head_branch: str, title: str, issue_number: int) -> bool:
         """Create a new pull request for the given issue."""
         try:
             pr = self.repo.create_pull(
                 title=title,
-                body=body,
+                body=f"This pull request addresses issue #{issue_number}.",
                 head=head_branch,
                 base=base_branch
             )
             self.logger.info(f"Pull request created: {pr.html_url}")
+            return True
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
+            return False
