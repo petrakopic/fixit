@@ -42,7 +42,7 @@ class GithubClient:
         try:
             pr = self.repo.create_pull(
                 title=title,
-                body=body,
+                body=f"This pull request addresses the issue #{issue.number}. {body}",
                 head=head_branch,
                 base=base_branch
             )
