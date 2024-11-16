@@ -102,6 +102,8 @@ def main():
     push_branch(git_client, branch_name)
     create_pull_request(github_client, issue, branch_name)
 
+    print("\n\n")
+    print(result)
 
 if __name__ == "__main__":
     main()

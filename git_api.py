@@ -13,6 +13,8 @@ class GitManager:
         """
         self.repo_path = os.getcwd()
         self.logger = logging.getLogger(__name__)
+        # Position to the main branch every time the GitManager is initialized.
+        self.checkout("main")
 
     def _run(self, command):
         """
