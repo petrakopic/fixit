@@ -38,7 +38,7 @@ class GithubClient:
                 return issue
         return None
 
-    def create_pull_request(self, base_branch, head_branch, title, body):
+    def create_pull_request(self, base_branch, head_branch, title, body, issue):
         try:
             pr = self.repo.create_pull(
                 title=title,
