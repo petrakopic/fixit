@@ -29,6 +29,9 @@ class GithubClient:
     def get_open_issues(self):
         return self.repo.get_issues(state="open")
 
+    def get_open_pull_requests(self):
+        return self.repo.get_pulls(state="open")
+
     def find_assigned_issue(self, target_username):
         for issue in self.get_open_issues():
             if issue.assignee and issue.assignee.login == target_username:
