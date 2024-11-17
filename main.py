@@ -172,7 +172,7 @@ class FixitAgent:
             return False
 
 
-def main():
+def run_fixit_agent_service():
     """
     Main service function that continuously runs the Fixit Agent.
 
@@ -206,4 +206,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_fixit_agent_service()
