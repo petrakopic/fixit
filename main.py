@@ -201,7 +201,6 @@ def run_fixit_agent_service(repo_name: str, username: str) -> None:
         time.sleep(polling_interval)
 
 
-
 @click.command()
 @click.option('--repo_name', help='GitHub repository name in the format "username/repo"')
 @click.option('--username', help='GitHub username to be tagged on issues')
