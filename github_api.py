@@ -1,6 +1,7 @@
-import os
-from github import Github, PullRequest, Issue
 import logging
+import os
+
+from github import Github, PullRequest, Issue
 
 
 class GithubClient:
@@ -58,7 +59,6 @@ class GithubClient:
 
         self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
         return prioritized_issues
-
 
     def create_pull_request(
           self,

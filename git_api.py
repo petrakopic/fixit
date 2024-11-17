@@ -1,6 +1,6 @@
+import logging
 import os
 import subprocess
-import logging
 
 
 class GitManager:

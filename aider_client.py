@@ -1,9 +1,11 @@
-import logging
 from pathlib import Path
 from typing import List, Optional, Union
+import logging
+
 from aider.coders import Coder
-from aider.models import Model
 from aider.io import InputOutput
+from aider.models import Model
+
 from config import MODEL
 
 
@@ -31,7 +33,6 @@ class AiderClientConfig:
     def read_conventions(self) -> str:
         if not self.conventions_path:
             return ""
-
         try:
             with open(self.conventions_path, 'r') as f:
                 return f.read()
@@ -58,9 +59,7 @@ class AiderClient:
             io = InputOutput(yes=True)
             conventions = self.config.read_conventions()
 
-            # Use existing conventions file if it exists
             if conventions:
-                # Add conventions file as read-only reference
                 read_only_files = [self.config.conventions_path]
             else:
                 read_only_files = None
@@ -82,11 +81,13 @@ class AiderClient:
                 self.coder.cur_messages.extend([
                     {
                         "role": "user",
-                        "content": "Please review the conventions in .conventions_readonly.md and ensure all changes follow these guidelines."
+                        "content": "Please review the conventions in .conventions.md and ensure all"
+                                   " changes follow these guidelines."
                     },
                     {
                         "role": "assistant",
-                        "content": "I've reviewed the conventions and will ensure all changes follow these guidelines."
+                        "content": "I've reviewed the conventions and will ensure all changes"
+                                   " follow these guidelines."
                     }
                 ])
 

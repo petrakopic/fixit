@@ -1,5 +1,6 @@
-import anthropic
 import json
+
+import anthropic
 
 
 class IssueDescriptionParser:
