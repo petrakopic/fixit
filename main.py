@@ -3,6 +3,7 @@ import os
 import re
 
 import git_api
+from aider_client import AiderClient, AiderClientConfig
 from github_api import GithubClient
 from issue_parser import IssueDescriptionParser
 from aider.coders import Coder
@@ -116,9 +117,12 @@ def main():
         return
 
     os.environ['AIDER_CONFIG'] = str("aider.conf.yml")
-    model = Model(MODEL)
-    coder = Coder.create(main_model=model, fnames=files)
-    changes_made = execute_instructions(coder, instructions)
+    #model = Model(MODEL)
+    #coder = Coder.create(main_model=model, fnames=files)
+    #changes_made = execute_instructions(coder, instructions)
+    client = AiderClient(AiderClientConfig(model_name=MODEL))
+    client.initialize(files)
+    changes_made = client.run(instructions)
 
     push_branch(git_client, branch_name)
     pr = create_pull_request(github_client, issue, branch_name, issue.user.login, changes_made)
