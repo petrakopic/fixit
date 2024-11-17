@@ -52,7 +52,7 @@ def parse_issue(parser, issue):
 
 
 def execute_instructions(coder, instructions):
-    result = coder.run(f"{instructions[0]}")
+    result = coder.run(".".join(instructions))
     logging.info(f"****** Result: {result}")
     return result
 
