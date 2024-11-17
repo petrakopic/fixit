@@ -5,7 +5,7 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_NAME = "petrakopic/fixit"
 USERNAME = "petrakopic"
 
-PRIORITY_LABELS={"urgent"}
+PRIORITY_LABELS={"Urgent"}
 
 # AI model configuration
 MODEL = "claude-3-haiku-20240307"
