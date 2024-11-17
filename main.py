@@ -6,6 +6,8 @@ import sys
 import time
 
 import click
+from github.GithubException import GithubException
+from anthropic.errors import AnthropicException
 
 from ai_agent import AiderClient, AiderClientConfig
 from services.git import GitManager
@@ -45,7 +47,6 @@ class FixitAgent:
         )
         self.logger = logging.getLogger('FixitAgent')
 
-
     def _create_branch_name(self, issue) -> str:
         """Generate a sanitized branch name from issue title."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -70,7 +71,7 @@ class FixitAgent:
                              f"\n\tFiles: {files}")
 
             return instructions, files
-        except Exception as e:
+        except AnthropicException as e:
             self.logger.error(f"❌ Error parsing Fixit task: {str(e)}")
             return None, None
 
@@ -81,7 +82,7 @@ class FixitAgent:
             result = coder.run(instructions)
             self.logger.info("✅ Fixit Agent completed task successfully")
             return result
-        except Exception as e:
+        except AiderException as e:
             self.logger.error(f"❌ Fixit Agent encountered an error: {str(e)}")
             raise
 
@@ -100,10 +101,14 @@ class FixitAgent:
 
         self.logger.info(f"🔍 Fixit Agent scanning for tasks in: {self.repo_name}")
 
-        priority_issues = self.github_client.get_prioritized_issues(
-            username=self.username,
-            priority_labels=PRIORITY_LABELS
-        )
+        try:
+            priority_issues = self.github_client.get_prioritized_issues(
+                username=self.username,
+                priority_labels=PRIORITY_LABELS
+            )
+        except GithubException as e:
+            self.logger.error(f"❌ Error fetching issues from GitHub: {str(e)}")
+            return False
 
         if not priority_issues:
             self.logger.info("ℹ️ No Fixit tasks found")
@@ -163,8 +168,14 @@ class FixitAgent:
             self.processed_issues.add(issue_to_process.number)
             return True
 
+        except GithubException as e:
+            self.logger.error(f"❌ Error interacting with GitHub: {str(e)}")
+            return False
+        except AiderException as e:
+            self.logger.error(f"❌ Error executing Fixit task: {str(e)}")
+            return False
         except Exception as e:
-            self.logger.error(f"❌ Fixit Agent error: {str(e)}")
+            self.logger.error(f"❌ Fixit Agent encountered an unexpected error: {str(e)}")
             return False
 
 
@@ -193,7 +204,7 @@ def run_fixit_agent_service(repo_name: str, username: str) -> None:
             agent.logger.info("👋 Fixit Agent shutdown requested. Exiting...")
             break
         except Exception as e:
-            agent.logger.error(f"❌ Fixit Agent encountered an error: {str(e)}")
+            agent.logger.error(f"❌ Fixit Agent encountered an unexpected error: {str(e)}")
 
         time.sleep(POLLING_INTERVAL)
 
