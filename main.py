@@ -147,8 +147,7 @@ class FixitAgent:
                 base_branch="main",
                 head_branch=branch_name,
                 body=f"🤖 Fixit Agent Solution for #{issue.number}\n\n"
-                     f"cc @{issue.user.login}\n\n"
-                     f"Changes made by Fixit:\n```\n{changes_made}\n```",
+                     f"cc @{issue.user.login}\n\n",
                 title=f"Fixit: {issue.title}",
                 issue=issue
             )
