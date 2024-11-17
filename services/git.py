@@ -2,6 +2,8 @@ import logging
 import os
 import subprocess
 
+class GitException(Exception):
+    pass
 
 class GitManager:
     def __init__(self):
@@ -36,7 +38,7 @@ class GitManager:
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Git command failed: {e.stderr}")
-            raise
+            raise GitException(f"Git command failed: {e.stderr}")
 
     def checkout(self, branch_name):
         return self._run(["git", "checkout", branch_name])
