@@ -184,10 +184,7 @@ def run_fixit_agent_service(repo_name: str, username: str) -> None:
     process.
     """
     agent = FixitAgent(repo_name=repo_name, username=username)
-    polling_interval = POLLING_INTERVAL
-
     agent.logger.info("🚀 Starting Fixit Agent Service")
-    agent.logger.info(f"⏰ Task scanning interval: {polling_interval} seconds")
 
     while True:
         try:
@@ -198,7 +195,7 @@ def run_fixit_agent_service(repo_name: str, username: str) -> None:
         except Exception as e:
             agent.logger.error(f"❌ Fixit Agent encountered an error: {str(e)}")
 
-        time.sleep(polling_interval)
+        time.sleep(POLLING_INTERVAL)
 
 
 @click.command()
