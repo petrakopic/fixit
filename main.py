@@ -200,5 +200,9 @@ def run_fixit_agent_service(repo_name: str, username: str) -> None:
 @click.command()
 @click.option('--repo_name', help='GitHub repository name in the format "username/repo"')
 @click.option('--username', default = "fixit-bot", help='GitHub username to be tagged on issues')
-def main(repo_name:str, username:str):
+def main(repo_name: str, username:str):
     run_fixit_agent_service(repo_name=repo_name, username=username)
+
+
+if __name__ == '__main__':
+    main()
