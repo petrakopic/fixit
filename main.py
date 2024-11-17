@@ -1,29 +1,31 @@
+import os
 from datetime import datetime
 import logging
 import re
 import sys
 import time
 
+import click
+
 from ai_agent import AiderClient, AiderClientConfig
 from services.git import GitManager
-from services.github import GithubClient
+from services.github_client import GithubClient
 from services.parser import IssueDescriptionParser
 from config import (
-    ANTHROPIC_API_KEY,
     MODEL,
     POLLING_INTERVAL,
     PRIORITY_LABELS,
-    REPO_NAME,
-    USERNAME,
 )
 
 
 class FixitAgent:
-    def __init__(self):
+    def __init__(self, repo_name: str, username: str):
+        self.repo_name = repo_name
+        self.username = username
         self.setup_logging()
-        self.api_key = self._get_anthropic_api_key()
-        self.github_client = GithubClient(REPO_NAME)
-        self.git_client = GitManager(REPO_NAME)
+        self.api_key = os.environ.get("ANTHROPIC_API_KEY")
+        self.github_client = GithubClient(repo_name=repo_name)
+        self.git_client = GitManager()
         self.parser = IssueDescriptionParser(self.api_key)
         # Track processed issue numbers, so we don't process the same issue twice
         self.processed_issues = set()
@@ -43,12 +45,6 @@ class FixitAgent:
         )
         self.logger = logging.getLogger('FixitAgent')
 
-    def _get_anthropic_api_key(self) -> str | None:
-        """Retrieve and validate the Anthropic API key."""
-        if not ANTHROPIC_API_KEY:
-            self.logger.error("❌ ANTHROPIC_API_KEY environment variable is not set")
-            return None
-        return ANTHROPIC_API_KEY
 
     def _create_branch_name(self, issue) -> str:
         """Generate a sanitized branch name from issue title."""
@@ -102,10 +98,10 @@ class FixitAgent:
         if not self.api_key:
             return False
 
-        self.logger.info(f"🔍 Fixit Agent scanning for tasks in: {REPO_NAME}")
+        self.logger.info(f"🔍 Fixit Agent scanning for tasks in: {self.repo_name}")
 
         priority_issues = self.github_client.get_prioritized_issues(
-            username=USERNAME,
+            username=self.username,
             priority_labels=PRIORITY_LABELS
         )
 
@@ -172,7 +168,7 @@ class FixitAgent:
             return False
 
 
-def run_fixit_agent_service():
+def run_fixit_agent_service(repo_name: str, username: str) -> None:
     """
     Main service function that continuously runs the Fixit Agent.
 
@@ -187,7 +183,7 @@ def run_fixit_agent_service():
     determines how often the Fixit Agent checks for new issues to
     process.
     """
-    agent = FixitAgent()
+    agent = FixitAgent(repo_name=repo_name, username=username)
     polling_interval = POLLING_INTERVAL
 
     agent.logger.info("🚀 Starting Fixit Agent Service")
@@ -205,5 +201,9 @@ def run_fixit_agent_service():
         time.sleep(polling_interval)
 
 
-if __name__ == "__main__":
-    run_fixit_agent_service()
+
+@click.command()
+@click.option('--repo_name', help='GitHub repository name in the format "username/repo"')
+@click.option('--username', help='GitHub username to be tagged on issues')
+def main(repo_name:str, username:str):
+    run_fixit_agent_service(repo_name=repo_name, username=username)

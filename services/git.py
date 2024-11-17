@@ -4,12 +4,10 @@ import subprocess
 
 
 class GitManager:
-    def __init__(self, repo_path=None):
+    def __init__(self):
         """
         Initialize the GitManager with an optional repository path.
         Defaults to the current working directory if not provided.
-        Args:
-            repo_path (str): Path to the git repository.
         """
         self.repo_path = os.getcwd()
         self.logger = logging.getLogger(__name__)
