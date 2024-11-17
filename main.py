@@ -54,7 +54,7 @@ def parse_issue(parser, issue):
 def execute_instructions(coder, instructions):
     result = coder.run(".".join(instructions))
     logging.info(f"****** Result: {result}")
-    changes_made = result.get("The changes made", "")
+    changes_made = result
     return changes_made
 
 
