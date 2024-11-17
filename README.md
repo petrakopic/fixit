@@ -2,6 +2,13 @@
 
 A smart bot that listens to issues, gets tagged for action, automatically solves them, and opens a pull request with the fix.
 
+## Video Tutorial
+
+Here’s a video tutorial that walks you through the setup and usage:
+
+[![Video Tutorial](./readme_res/fixit_walkthrough.mp4)
+
+
 ## Description
 
 Fixit is an automated tool that helps maintain your codebase by:
@@ -9,6 +16,8 @@ Fixit is an automated tool that helps maintain your codebase by:
 - Responding to specific tags or mentions
 - Automatically analyzing and fixing common issues
 - Creating pull requests with the proposed fixes
+
+![System Diagram](./readme_res/fixit.png)
 
 ## Installation
 
