@@ -67,6 +67,27 @@ def comment_on_issue(github_client, issue, pr_url):
 
 
 def main():
+    """
+    The main function that orchestrates the entire process of fixing a prioritized issue.
+
+    This function performs the following steps:
+    1. Configures logging.
+    2. Retrieves the Anthropic API key.
+    3. Initializes the GitHub client with the repository name.
+    4. Retrieves the prioritized issues from the GitHub repository.
+    5. Selects the first prioritized issue.
+    6. Creates a branch name based on the issue title.
+    7. Checks out the new branch.
+    8. Parses the issue description to extract instructions and files.
+    9. Executes the instructions using the Coder and Model from the Aider library.
+    10. Pushes the changes to the new branch.
+    11. Creates a pull request for the new branch.
+    12. Comments on the original issue with the pull request URL.
+    13. Prints the changes made.
+
+    Returns:
+        None
+    """
     configure_logging()
     api_key = get_anthropic_api_key()
     if not api_key:
