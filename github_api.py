@@ -1,5 +1,5 @@
 import os
-from github import Github, PullRequest
+from github import Github, PullRequest, Issue
 import logging
 
 
@@ -45,16 +45,30 @@ class GithubClient:
                 return issue
         return None
 
-    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str) -> PullRequest.PullRequest | None:
+    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str, issue: Issue) -> PullRequest.PullRequest | None:
         """Create a new pull request for the given issue."""
         try:
             pr = self.repo.create_pull(
                 title=title,
-                body=body,
+                body=f"Fixes #{issue.number}\n\n{body}",
                 head=head_branch,
                 base=base_branch
             )
             self.logger.info(f"Pull request created: {pr.html_url}")
+            # Link the issue to the PR
+            try:
+                # This creates the connection in the Development panel
+                issue.edit(
+                    state='open',  # Ensure we don't accidentally close the issue
+                    labels=list(issue.labels),  # Preserve existing labels
+                    assignee=issue.assignee.login if issue.assignee else None,  # Preserve assignee
+                    linked_pull_requests=[pr]  # Link the PR
+                )
+                self.logger.info(f"Successfully linked issue #{issue.number} to PR #{pr.number}")
+            except Exception as e:
+                self.logger.error(f"Failed to link issue to PR in Development panel: {str(e)}")
+                # Note: PR is still created even if linking fails
+
             return pr
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
