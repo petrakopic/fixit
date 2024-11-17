@@ -94,7 +94,7 @@ def main():
 
     parser = IssueDescriptionParser(api_key)
     instructions, files = parse_issue(parser, issue)
-    if not instructions or not files:
+    if not instructions:
         logging.warning("Invalid issue data. Skipping processing.")
         return
 
