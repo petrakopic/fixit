@@ -30,23 +30,51 @@ class GithubClient:
                 raise ValueError("Invalid repository configuration.")
         return self._repo
 
-    def get_open_issues(self) -> list:
+    def get_open_issues(self) -> list[Issue]:
         """Fetch all open issues from the repository."""
         return list(self.repo.get_issues(state="open"))
 
-    def get_open_pull_requests(self) -> list:
+    def get_open_pull_requests(self) -> list[PullRequest.PullRequest]:
         """Fetch all open pull requests from the repository."""
         return list(self.repo.get_pulls(state="open"))
 
-    def find_assigned_issue(self, target_username: str):
+    def get_prioritized_issues(
+          self,
+          username: str,
+          priority_labels: set[str],
+    ) -> list[Issue]:
+        """
+        Get open issues assigned to username with priority labels, sorted by creation date.
+        """
+        prioritized_issues = [
+            issue for issue in self.get_open_issues()
+            if issue.assignee
+               and issue.assignee.login == username
+               and any(label.name in priority_labels for label in issue.labels)
+        ]
+
+        # Sort by creation date (oldest first)
+        prioritized_issues.sort(key=lambda x: x.created_at)
+
+        self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
+        return prioritized_issues
+
+    def find_assigned_issue(self, target_username: str) -> Issue | None:
         """Find an open issue assigned to the specified username."""
         for issue in self.get_open_issues():
             if issue.assignee and issue.assignee.login == target_username:
                 return issue
         return None
 
-    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str, issue: Issue) -> PullRequest.PullRequest | None:
-        """Create a new pull request for the given issue."""
+    def create_pull_request(
+          self,
+          base_branch: str,
+          head_branch: str,
+          title: str,
+          body: str,
+          issue: Issue
+    ) -> PullRequest.PullRequest | None:
+        """Create a new pull request and link it to the given issue."""
         try:
             pr = self.repo.create_pull(
                 title=title,
@@ -55,20 +83,19 @@ class GithubClient:
                 base=base_branch
             )
             self.logger.info(f"Pull request created: {pr.html_url}")
-            # Link the issue to the PR
+
             try:
-                # This creates the connection in the Development panel
                 issue.edit(
-                    state='open',  # Ensure we don't accidentally close the issue
-                    labels=list(issue.labels),  # Preserve existing labels
-                    assignee=issue.assignee.login if issue.assignee else None,  # Preserve assignee
-                    linked_pull_requests=[pr]  # Link the PR
+                    state='open',
+                    labels=list(issue.labels),
+                    assignee=issue.assignee.login if issue.assignee else None,
+                    linked_pull_requests=[pr]
                 )
                 self.logger.info(f"Successfully linked issue #{issue.number} to PR #{pr.number}")
             except Exception as e:
                 self.logger.error(f"Failed to link issue to PR in Development panel: {str(e)}")
-                # Note: PR is still created even if linking fails
 
             return pr
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
+            return None

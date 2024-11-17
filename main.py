@@ -8,7 +8,7 @@ from issue_parser import IssueDescriptionParser
 from aider.coders import Coder
 from aider.models import Model
 
-from config import REPO_NAME, USERNAME, MODEL, ANTHROPIC_API_KEY
+from config import REPO_NAME, USERNAME, MODEL, ANTHROPIC_API_KEY, PRIORITY_LABELS
 
 logging.basicConfig(level=logging.INFO)
 
@@ -82,8 +82,12 @@ def main():
 
     logging.info(f"Repo name: {REPO_NAME}")
     github_client = GithubClient(REPO_NAME)
-    issue = get_first_open_issue(github_client, USERNAME)
-    if not issue:
+
+    priority_issues = github_client.get_prioritized_issues(username=USERNAME, priority_labels=PRIORITY_LABELS)
+
+    if priority_issues:
+        issue = priority_issues[0]
+    else:
         return
 
     branch_name = create_branch_name(issue)
