@@ -29,15 +29,10 @@ Fixit simplifies the issue resolution process in six easy steps:
 
 ---
 
-## 🎯 **Features**
-
-- 🚀 **Automated issue resolution**: From parsing to fixing and PR creation.  
-- 🔍 **Context-Aware Changes**: Uses the existing codebase intelligently for fixes.  
-- 🔗 **Seamless Integration**: Automatically links issues with PRs.  
-- 📊 **Token Usage Tracking**: Gain transparency over your AI token consumption.  
+## 🔗 **Fixit Service Architecture**
 
 <div align="left">
-  <img src="readme_res/fixit.png" alt="System Diagram" width="300"/>
+  <img src="readme_res/fixit.png" alt="System Diagram" width="400"/>
 </div>
 
 
