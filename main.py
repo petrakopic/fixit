@@ -8,8 +8,7 @@ import time
 import click
 from github.GithubException import GithubException
 from anthropic.errors import AnthropicException
-
-from ai_agent import AiderClient, AiderClientConfig
+from ai_agent import AiderClient, AiderClientConfig, AiderException
 from services.git import GitManager
 from services.github_client import GithubClient
 from services.parser import IssueDescriptionParser
