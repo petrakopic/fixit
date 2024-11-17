@@ -1,13 +1,21 @@
+from datetime import datetime
 import logging
 import re
-import time
 import sys
-from datetime import datetime
-import git_api
-from aider_client import AiderClient, AiderClientConfig
-from github_api import GithubClient
-from issue_parser import IssueDescriptionParser
-from config import REPO_NAME, USERNAME, MODEL, ANTHROPIC_API_KEY, PRIORITY_LABELS
+import time
+
+from ai_agent import AiderClient, AiderClientConfig
+from services.git import GitManager
+from services.github import GithubClient
+from services.parser import IssueDescriptionParser
+from config import (
+    ANTHROPIC_API_KEY,
+    MODEL,
+    POLLING_INTERVAL,
+    PRIORITY_LABELS,
+    REPO_NAME,
+    USERNAME,
+)
 
 
 class FixitAgent:
@@ -15,13 +23,12 @@ class FixitAgent:
         self.setup_logging()
         self.api_key = self._get_anthropic_api_key()
         self.github_client = GithubClient(REPO_NAME)
-        self.git_client = git_api.GitManager(REPO_NAME)
+        self.git_client = GitManager(REPO_NAME)
         self.parser = IssueDescriptionParser(self.api_key)
-        self.processed_issues = set()  # Track processed issue numbers
-
+        # Track processed issue numbers, so we don't process the same issue twice
+        self.processed_issues = set()
 
     def setup_logging(self) -> None:
-        """Configure logging with simplified time format."""
         logging_format = '%(asctime)s [%(levelname)s] Fixit Agent: %(message)s'
         date_format = '%H:%M:%S'
 
@@ -47,7 +54,7 @@ class FixitAgent:
         """Generate a sanitized branch name from issue title."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         sanitized_title = re.sub(r'[^a-zA-Z0-9]', '_', issue.title.lower())
-        return f"fixit/{sanitized_title}_{timestamp}"
+        return f"{sanitized_title}_{timestamp}"
 
     def _checkout_branch(self, branch_name: str) -> None:
         """Checkout main and create a new branch."""
@@ -58,7 +65,7 @@ class FixitAgent:
     def _parse_issue(self, issue) -> tuple[str|None, list[str]|None]:
         """Parse issue description to extract instructions and files."""
         try:
-            parsed_issue = self.parser.parse_description(issue.body)
+            parsed_issue = self.parser.parse_description(issue_description=issue.body)
             instructions = parsed_issue.get("instructions")
             files = parsed_issue.get("files")
 
@@ -171,8 +178,7 @@ def main():
 
     This function sets up the FixitAgent instance, configures logging,
     and then enters a loop where it continuously processes prioritized
-    issues from the GitHub repository. The loop can be interrupted
-    using a keyboard interrupt (Ctrl+C).
+    issues from the GitHub repository.
 
     If any errors occur during the processing of an issue, the error
     is logged, and the loop continues to the next iteration.
@@ -182,7 +188,7 @@ def main():
     process.
     """
     agent = FixitAgent()
-    polling_interval = 5  # seconds
+    polling_interval = POLLING_INTERVAL
 
     agent.logger.info("🚀 Starting Fixit Agent Service")
     agent.logger.info(f"⏰ Task scanning interval: {polling_interval} seconds")

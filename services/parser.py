@@ -2,15 +2,17 @@ import json
 
 import anthropic
 
+from config import MODEL
+
 
 class IssueDescriptionParser:
     def __init__(self, api_key: str):
         """Initialize the parser with your Anthropic API key."""
         self.client = anthropic.Client(api_key=api_key)
 
-    def parse_description(self, pr_description: str) -> dict:
+    def parse_description(self, issue_description: str) -> dict:
         """
-        Parse the PR description to extract the main message and files.
+        Parse the Issue description to extract the main message and files.
 
         Returns:
             Tuple containing (clear_message, list_of_files)
@@ -34,11 +36,9 @@ class IssueDescriptionParser:
         }}
 
         PR Description:
-        {pr_description}"""
-
-        # Call Claude API
+        {issue_description}"""
         message = self.client.messages.create(
-            model="claude-3-haiku-20240307",
+            model=MODEL,
             max_tokens=1000,
             messages=[
                 {
@@ -57,5 +57,4 @@ class IssueDescriptionParser:
                 "instructions": ["Error parsing response"],
                 "files": []
             }
-
         return response_dict

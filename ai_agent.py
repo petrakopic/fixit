@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Optional, Union
 import logging
 
 from aider.coders import Coder
@@ -15,7 +14,7 @@ class AiderClientConfig:
     def __init__(
           self,
           model_name: str = MODEL,
-          conventions_path: Optional[str] = None,
+          conventions_path: str | None = None,
           show_diffs: bool = True,
           auto_commits: bool = True,
     ):
@@ -25,7 +24,7 @@ class AiderClientConfig:
         self.auto_commits = auto_commits
 
     @staticmethod
-    def _find_conventions() -> Optional[str]:
+    def _find_conventions() -> str | None:
         """Look for conventions.md in current directory"""
         default_path = Path.cwd() / "conventions.md"
         return str(default_path) if default_path.exists() else None
@@ -45,15 +44,24 @@ class AiderClientConfig:
 
 
 class AiderClient:
-    """Client for interacting with Aider"""
+    """ A wrapper client for interacting with Aider.
 
-    def __init__(self, config: Optional[AiderClientConfig] = None):
+    This class provides a simplified interface to the Aider AI coding assistant,
+    handling initialization, configuration, and execution of coding tasks.
+    It encapsulates the complexities of the Aider library and provides a more
+    streamlined API for use within the Fixit project.
+
+    Aider is an AI pair programming tool that uses large language models to edit
+    code in your local git repository. For more information about Aider, visit:
+    https://aider.chat/"""
+
+    def __init__(self, config: AiderClientConfig | None = None):
         self.config = config or AiderClientConfig()
         self.model = Model(self.config.model_name)
         self.coder = None
         self.logger = logging.getLogger(__name__)
 
-    def initialize(self, files: List[str]) -> None:
+    def initialize(self, files: list[str]) -> None:
         """Initialize the Aider coder with files and configurations"""
         try:
             io = InputOutput(yes=True)
@@ -74,7 +82,6 @@ class AiderClient:
                 io=io
             )
 
-            # Add conventions if they exist
             if conventions:
                 self.logger.info("Adding code conventions to chat context")
                 # Add an explicit instruction to follow conventions
@@ -95,7 +102,7 @@ class AiderClient:
             self.logger.error(f"Failed to initialize Aider: {str(e)}")
             raise
 
-    def run(self, instructions: Union[str, List[str]]) -> str:
+    def run(self, instructions: str | list) -> str:
         """Run one or more instructions through Aider"""
         if not self.coder:
             raise ValueError("Aider not initialized. Call initialize first.")
@@ -110,7 +117,7 @@ class AiderClient:
             self.logger.error(f"Failed to execute instructions: {str(e)}")
             raise
 
-    def add_files(self, files: List[str]) -> None:
+    def add_files(self, files: list[str]) -> None:
         """Add additional files to the chat context"""
         if not self.coder:
             raise ValueError("Aider not initialized. Call initialize first.")
