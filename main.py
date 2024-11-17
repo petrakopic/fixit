@@ -64,7 +64,7 @@ def push_branch(git_client, branch_name):
 
 
 def create_pull_request(github_client, issue, branch_name, author, changes_made):
-    pr = github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}\n\ncc @{author}\n\n{changes_made}", title=f"Fixit for issue {issue.number}")
+    pr = github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}\n\ncc @{author}\n\n{changes_made}", title=issue.title)
     logging.info("****** Creating pull request********")
     return pr
 
