@@ -3,6 +3,10 @@ import os
 from github import Github, PullRequest, Issue
 
 
+class GithubException(Exception):
+    pass
+
+
 class GithubClient:
     def __init__(self, repo_name: str):
         self._github = Github(self._get_github_token())
@@ -15,7 +19,7 @@ class GithubClient:
         """Retrieve GitHub token from environment variables."""
         token = os.environ.get("GITHUB_TOKEN")
         if not token:
-            raise ValueError("GITHUB_TOKEN environment variable not set.")
+            raise GithubException("GITHUB_TOKEN environment variable not set.")
         return token
 
     @property
@@ -27,16 +31,24 @@ class GithubClient:
                 self.logger.info(f"Successfully fetched repository: {self.repo_name}")
             except Exception as e:
                 self.logger.error(f"Failed to fetch repository: {str(e)}")
-                raise ValueError("Invalid repository configuration.")
+                raise GithubException("Invalid repository configuration.") from e
         return self._repo
 
     def get_open_issues(self) -> list[Issue]:
         """Fetch all open issues from the repository."""
-        return list(self.repo.get_issues(state="open"))
+        try:
+            return list(self.repo.get_issues(state="open"))
+        except Exception as e:
+            self.logger.error(f"Failed to fetch open issues: {str(e)}")
+            raise GithubException("Failed to fetch open issues") from e
 
     def get_open_pull_requests(self) -> list[PullRequest.PullRequest]:
         """Fetch all open pull requests from the repository."""
-        return list(self.repo.get_pulls(state="open"))
+        try:
+            return list(self.repo.get_pulls(state="open"))
+        except Exception as e:
+            self.logger.error(f"Failed to fetch open pull requests: {str(e)}")
+            raise GithubException("Failed to fetch open pull requests") from e
 
     def get_prioritized_issues(
           self,
@@ -46,18 +58,22 @@ class GithubClient:
         """
         Get open issues assigned to username with priority labels, sorted by creation date.
         """
-        prioritized_issues = [
-            issue for issue in self.get_open_issues()
-            if issue.assignee
-               and issue.assignee.login == username
-               and any(label.name in priority_labels for label in issue.labels)
-        ]
+        try:
+            prioritized_issues = [
+                issue for issue in self.get_open_issues()
+                if issue.assignee
+                   and issue.assignee.login == username
+                   and any(label.name in priority_labels for label in issue.labels)
+            ]
 
-        # Sort by creation date (oldest first)
-        prioritized_issues.sort(key=lambda x: x.created_at)
+            # Sort by creation date (oldest first)
+            prioritized_issues.sort(key=lambda x: x.created_at)
 
-        self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
-        return prioritized_issues
+            self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
+            return prioritized_issues
+        except Exception as e:
+            self.logger.error(f"Failed to fetch prioritized issues: {str(e)}")
+            raise GithubException("Failed to fetch prioritized issues") from e
 
     def create_pull_request(
           self,
@@ -91,4 +107,4 @@ class GithubClient:
             return pr
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
-            return None
+            raise GithubException("Failed to create pull request") from e

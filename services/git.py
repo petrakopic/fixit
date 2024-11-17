@@ -3,6 +3,10 @@ import os
 import subprocess
 
 
+class GitException(Exception):
+    pass
+
+
 class GitManager:
     def __init__(self):
         """
@@ -25,7 +29,7 @@ class GitManager:
             str: Output of the command.
 
         Raises:
-            subprocess.CalledProcessError: If the command fails.
+            GitException: If the command fails.
         """
         try:
             self.logger.info(f"Executing: {' '.join(command)} in {self.repo_path}")
@@ -36,19 +40,31 @@ class GitManager:
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Git command failed: {e.stderr}")
-            raise
+            raise GitException(f"Git command failed: {e.stderr}")
 
     def checkout(self, branch_name):
-        return self._run(["git", "checkout", branch_name])
+        try:
+            return self._run(["git", "checkout", branch_name])
+        except GitException as e:
+            raise GitException(f"Failed to checkout branch: {branch_name}") from e
 
     def create_and_checkout_branch(self, branch_name):
-        return self._run(["git", "checkout", "-b", branch_name])
+        try:
+            return self._run(["git", "checkout", "-b", branch_name])
+        except GitException as e:
+            raise GitException(f"Failed to create and checkout branch: {branch_name}") from e
 
     def push(self, branch_name=None):
         command = ["git", "push"]
         if branch_name:
             command += ["--set-upstream", "origin", branch_name]
-        return self._run(command)
+        try:
+            return self._run(command)
+        except GitException as e:
+            raise GitException(f"Failed to push changes to branch: {branch_name}") from e
 
     def pull(self):
-        return self._run(["git", "pull"])
+        try:
+            return self._run(["git", "pull"])
+        except GitException as e:
+            raise GitException("Failed to pull changes from remote repository") from e
