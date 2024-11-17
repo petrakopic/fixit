@@ -6,7 +6,7 @@ A smart bot that listens to issues, gets tagged for action, automatically solves
 
 Here’s a video tutorial that walks you through the setup and usage:
 
-[![Video Tutorial](readme_res/fixit_walkthrough.gif)
+[![Video Tutorial](readme_res/fixit_walkthrough.mp4)
 
 
 ## Description
