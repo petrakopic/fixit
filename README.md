@@ -2,7 +2,8 @@
 
 ## About
 Fixit was created as a weekend side project sparked by an interesting chat with a colleague. The idea? To automate the 
-workflow: issue → AI assistant → code fix → pull request. The coolest part? I built the core functionality first and let Fixit evolve itself! 🙂
+workflow: issue → AI assistant → code fix → pull request.
+The coolest part? I built the core functionality first and let Fixit evolve itself! 🚀
 Fixit is a smart, automated bot that listens to your issues, fixes them intelligently, and opens a pull request with the solution.
 
 ## Video Walkthrough
