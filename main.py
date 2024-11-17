@@ -142,10 +142,22 @@ class FixitAgent:
             self.logger.error(f"❌ Error processing issue: {str(e)}")
             return False
 
-
 def main():
     """
     Main service function that continuously polls for and processes GitHub issues.
+
+    This function is the entry point of the application. It creates an instance of the
+    FixitAgent class, which is responsible for the core functionality of the service.
+    The main() function runs in an infinite loop, continuously checking for and
+    processing prioritized GitHub issues. If any issues are found, the function
+    creates a new branch, executes the necessary instructions using the AI coder,
+    pushes the changes to the remote repository, and creates a pull request.
+    The function also adds a comment to the original GitHub issue with a link to
+    the created pull request.
+
+    If any errors occur during the processing, they are logged and the function
+    continues to the next iteration of the loop. The service can be stopped by
+    pressing Ctrl+C.
     """
     processor = FixitAgent()
     polling_interval = 5  # seconds
