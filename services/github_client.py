@@ -3,6 +3,10 @@ import os
 from github import Github, PullRequest, Issue
 
 
+class GithubAPIError(Exception):
+    pass
+
+
 class GithubClient:
     def __init__(self, repo_name: str):
         self._github = Github(self._get_github_token())
@@ -27,7 +31,7 @@ class GithubClient:
                 self.logger.info(f"Successfully fetched repository: {self.repo_name}")
             except Exception as e:
                 self.logger.error(f"Failed to fetch repository: {str(e)}")
-                raise ValueError("Invalid repository configuration.")
+                raise GithubAPIError("Failed to fetch repository")
         return self._repo
 
     def get_open_issues(self) -> list[Issue]:
@@ -46,18 +50,22 @@ class GithubClient:
         """
         Get open issues assigned to username with priority labels, sorted by creation date.
         """
-        prioritized_issues = [
-            issue for issue in self.get_open_issues()
-            if issue.assignee
-               and issue.assignee.login == username
-               and any(label.name in priority_labels for label in issue.labels)
-        ]
+        try:
+            prioritized_issues = [
+                issue for issue in self.get_open_issues()
+                if issue.assignee
+                   and issue.assignee.login == username
+                   and any(label.name in priority_labels for label in issue.labels)
+            ]
 
-        # Sort by creation date (oldest first)
-        prioritized_issues.sort(key=lambda x: x.created_at)
+            # Sort by creation date (oldest first)
+            prioritized_issues.sort(key=lambda x: x.created_at)
 
-        self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
-        return prioritized_issues
+            self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
+            return prioritized_issues
+        except Exception as e:
+            self.logger.error(f"❌ Error fetching prioritized issues: {str(e)}")
+            raise GithubAPIError("Failed to fetch prioritized issues")
 
     def create_pull_request(
           self,
@@ -91,4 +99,4 @@ class GithubClient:
             return pr
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
-            return None
+            raise GithubAPIError("Failed to create pull request")

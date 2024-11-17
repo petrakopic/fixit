@@ -8,14 +8,18 @@ import time
 import click
 
 from ai_agent import AiderClient, AiderClientConfig
-from services.git import GitManager
-from services.github_client import GithubClient
-from services.parser import IssueDescriptionParser
+from services.git import GitManager, GitCommandError
+from services.github_client import GithubClient, GithubAPIError
+from services.parser import IssueDescriptionParser, ParserError
 from config import (
     MODEL,
     POLLING_INTERVAL,
     PRIORITY_LABELS,
 )
+
+
+class FixitAgentError(Exception):
+    pass
 
 
 class FixitAgent:
@@ -45,7 +49,6 @@ class FixitAgent:
         )
         self.logger = logging.getLogger('FixitAgent')
 
-
     def _create_branch_name(self, issue) -> str:
         """Generate a sanitized branch name from issue title."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -55,8 +58,12 @@ class FixitAgent:
     def _checkout_branch(self, branch_name: str) -> None:
         """Checkout main and create a new branch."""
         self.logger.info(f"🔄 Switching to main branch and creating: {branch_name}")
-        self.git_client.checkout("main")
-        self.git_client.create_and_checkout_branch(branch_name)
+        try:
+            self.git_client.checkout("main")
+            self.git_client.create_and_checkout_branch(branch_name)
+        except GitCommandError as e:
+            self.logger.error(f"❌ Error checking out branch: {str(e)}")
+            raise FixitAgentError("Failed to create and checkout branch")
 
     def _parse_issue(self, issue) -> tuple[str|None, list[str]|None]:
         """Parse issue description to extract instructions and files."""
@@ -70,7 +77,7 @@ class FixitAgent:
                              f"\n\tFiles: {files}")
 
             return instructions, files
-        except Exception as e:
+        except ParserError as e:
             self.logger.error(f"❌ Error parsing Fixit task: {str(e)}")
             return None, None
 
@@ -83,7 +90,7 @@ class FixitAgent:
             return result
         except Exception as e:
             self.logger.error(f"❌ Fixit Agent encountered an error: {str(e)}")
-            raise
+            raise FixitAgentError("Failed to execute instructions")
 
     def _should_process_issue(self, issue) -> bool:
         """Determine if an issue should be processed."""
@@ -100,10 +107,14 @@ class FixitAgent:
 
         self.logger.info(f"🔍 Fixit Agent scanning for tasks in: {self.repo_name}")
 
-        priority_issues = self.github_client.get_prioritized_issues(
-            username=self.username,
-            priority_labels=PRIORITY_LABELS
-        )
+        try:
+            priority_issues = self.github_client.get_prioritized_issues(
+                username=self.username,
+                priority_labels=PRIORITY_LABELS
+            )
+        except GithubAPIError as e:
+            self.logger.error(f"❌ Error fetching prioritized issues: {str(e)}")
+            return False
 
         if not priority_issues:
             self.logger.info("ℹ️ No Fixit tasks found")
@@ -162,8 +173,11 @@ class FixitAgent:
             self.processed_issues.add(issue_to_process.number)
             return True
 
-        except Exception as e:
+        except FixitAgentError as e:
             self.logger.error(f"❌ Fixit Agent error: {str(e)}")
+            return False
+        except Exception as e:
+            self.logger.error(f"❌ Unexpected error in Fixit Agent: {str(e)}")
             return False
 
 
