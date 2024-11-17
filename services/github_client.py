@@ -1,3 +1,5 @@
+import logging
+import os
 from github import Github, PullRequest, Issue
 
 class GithubError(Exception):
