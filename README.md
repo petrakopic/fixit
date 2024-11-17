@@ -6,10 +6,8 @@ A smart bot that listens to issues, gets tagged for action, automatically solves
 
 Here’s a video tutorial that walks you through the setup and usage:
 
-<video controls>
-  <source src="readme_res/fixit_walkthrough.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[![Video Tutorial](readme_res/fixit_walkthrough.gif)
+
 
 ## Description
 
