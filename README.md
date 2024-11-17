@@ -1,14 +1,13 @@
-# **Fixit** 🤖  
+# Fixit 🤖
+
+## About
 Fixit was created as a weekend side project sparked by an interesting chat with a colleague. The idea? To automate the 
-workflow: issue → AI assistant → code fix → pull request. And the best part? I built the core functionality first and let Fixit evolve itself! 🙂
+workflow: issue → AI assistant → code fix → pull request. The coolest part? I built the core functionality first and let Fixit evolve itself! 🙂
 Fixit is a smart, automated bot that listens to your issues, fixes them intelligently, and opens a pull request with the solution.
----
 
-## 📽 **Video walkthrough**
+## Video Walkthrough
+[![Fixit Walkthrough](readme_res/video_icon.svg)](https://www.veed.io/view/713d5d2d-016a-48e2-9d8b-f47787edb5ac)
 
-[![Fixit Walkthrough](https://www.veed.io/view/713d5d2d-016a-48e2-9d8b-f47787edb5ac?panel=share)]
-
----
 
 ## 📝 **How It Works**
 
@@ -19,7 +18,7 @@ Fixit simplifies the issue resolution process in six easy steps:
 3. **Wait for Fixit**: The bot picks up the tagged issue for processing.  
 4. **Smart Parsing**: Fixit leverages **Claude AI** to break down the issue into clear, actionable tasks.  
 5. **Code Fixes with Context**:  
-    - Fixit uses **Aider** to generate code changes based on the repository’s context.  
+    - Fixit uses **[Aider](https://aider.chat/)**  to generate code changes based on the repository’s context.  
     - Need additional files? Just mention them in the issue, and Fixit will include them.  
 6. **Pull Request Creation**:  
     - Fixit opens a PR with the proposed solution.  
@@ -37,8 +36,9 @@ Fixit simplifies the issue resolution process in six easy steps:
 - 🔗 **Seamless Integration**: Automatically links issues with PRs.  
 - 📊 **Token Usage Tracking**: Gain transparency over your AI token consumption.  
 
-![System Diagram](readme_res/fixit.png)
-
+<div align="left">
+  <img src="readme_res/fixit.png" alt="System Diagram" width="300"/>
+</div>
 
 
 ## Contributing
