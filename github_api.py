@@ -1,5 +1,5 @@
 import os
-from github import Github
+from github import Github, PullRequest
 import logging
 
 
@@ -45,7 +45,7 @@ class GithubClient:
                 return issue
         return None
 
-    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str) -> bool:
+    def create_pull_request(self, base_branch: str, head_branch: str, title: str, body: str) -> PullRequest.PullRequest | None:
         """Create a new pull request for the given issue."""
         try:
             pr = self.repo.create_pull(
@@ -55,5 +55,6 @@ class GithubClient:
                 base=base_branch
             )
             self.logger.info(f"Pull request created: {pr.html_url}")
+            return pr
         except Exception as e:
             self.logger.error(f"Failed to create pull request: {str(e)}")
