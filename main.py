@@ -125,11 +125,11 @@ class FixitAgent:
 
         try:
             # Create and checkout branch
-            branch_name = self._create_branch_name(issue)
+            branch_name = self._create_branch_name(issue_to_process)
             self._checkout_branch(branch_name)
 
             # Parse issue and execute instructions
-            instructions, files = self._parse_issue(issue)
+            instructions, files = self._parse_issue(issue_to_process)
             if not instructions:
                 self.logger.warning("⚠️ Invalid Fixit task data. Skipping processing.")
                 return False
@@ -146,15 +146,15 @@ class FixitAgent:
             pr = self.github_client.create_pull_request(
                 base_branch="main",
                 head_branch=branch_name,
-                body=f"🤖 Fixit Agent Solution for #{issue.number}\n\n"
-                     f"cc @{issue.user.login}\n\n",
-                title=f"Fixit: {issue.title}",
-                issue=issue
+                body=f"🤖 Fixit Agent Solution for #{issue_to_process.number}\n\n"
+                     f"cc @{issue_to_process.user.login}\n\n",
+                title=f"Fixit: {issue_to_process.title}",
+                issue=issue_to_process
             )
             self.logger.info(f"✨ Fixit Agent created pull request: {pr.html_url}")
 
             # Comment on the issue
-            issue.create_comment(
+            issue_to_process.create_comment(
                 f"🤖 Fixit Agent has created a solution!\n"
                 f"Review the changes here: {pr.html_url}"
             )
