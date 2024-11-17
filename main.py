@@ -168,6 +168,18 @@ class FixitAgent:
 def main():
     """
     Main service function that continuously runs the Fixit Agent.
+
+    This function sets up the FixitAgent instance, configures logging,
+    and then enters a loop where it continuously processes prioritized
+    issues from the GitHub repository. The loop can be interrupted
+    using a keyboard interrupt (Ctrl+C).
+
+    If any errors occur during the processing of an issue, the error
+    is logged, and the loop continues to the next iteration.
+
+    The function also includes a configurable polling interval, which
+    determines how often the Fixit Agent checks for new issues to
+    process.
     """
     agent = FixitAgent()
     polling_interval = 5  # seconds
