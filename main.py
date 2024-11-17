@@ -54,7 +54,8 @@ def parse_issue(parser, issue):
 def execute_instructions(coder, instructions):
     result = coder.run(".".join(instructions))
     logging.info(f"****** Result: {result}")
-    return result
+    changes_made = result.get("The changes made", "")
+    return changes_made
 
 
 def push_branch(git_client, branch_name):
@@ -62,8 +63,8 @@ def push_branch(git_client, branch_name):
     logging.info("****** Pushed branch")
 
 
-def create_pull_request(github_client, issue, branch_name, author):
-    pr = github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}\n\ncc @{author}", title=f"Fixit for issue {issue.number}")
+def create_pull_request(github_client, issue, branch_name, author, changes_made):
+    pr = github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}\n\ncc @{author}\n\n{changes_made}", title=f"Fixit for issue {issue.number}")
     logging.info("****** Creating pull request********")
     return pr
 
@@ -100,14 +101,14 @@ def main():
     os.environ['AIDER_CONFIG'] = str("aider.conf.yml")
     model = Model(MODEL)
     coder = Coder.create(main_model=model, fnames=files)
-    result = execute_instructions(coder, instructions)
+    changes_made = execute_instructions(coder, instructions)
 
     push_branch(git_client, branch_name)
-    pr = create_pull_request(github_client, issue, branch_name, issue.user.login)
+    pr = create_pull_request(github_client, issue, branch_name, issue.user.login, changes_made)
     comment_on_issue(github_client, issue, pr.html_url)
 
     print("\n\n")
-    print(result)
+    print(changes_made)
 
 if __name__ == "__main__":
     main()
