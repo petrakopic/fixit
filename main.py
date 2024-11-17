@@ -96,13 +96,6 @@ def main():
         logging.warning("Invalid issue data. Skipping processing.")
         return
 
-    os.environ['AIDER_CONFIG'] = str("aider.conf.yml")
-    model = Model(MODEL)
-    coder = Coder.create(main_model=model, fnames=files)
-    changes_made = execute_instructions(coder, instructions)
-    # model = Model(MODEL)
-    # coder = Coder.create(main_model=model, fnames=files)
-    # changes_made = execute_instructions(coder, instructions)
     client = AiderClient(AiderClientConfig(model_name=MODEL))
     client.initialize(files)
     changes_made = client.run(instructions)
