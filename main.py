@@ -25,14 +25,6 @@ def get_anthropic_api_key():
     return api_key
 
 
-def get_first_open_issue(github_client, username):
-    issue = github_client.find_assigned_issue(username)
-    if not issue:
-        logging.info("No open issues found for the target user.")
-        return None
-    return issue
-
-
 def create_branch_name(issue):
     return re.sub(" ", "_", issue.title.lower())
 

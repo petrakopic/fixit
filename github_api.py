@@ -59,12 +59,6 @@ class GithubClient:
         self.logger.info(f"Found {len(prioritized_issues)} prioritized issues for {username}")
         return prioritized_issues
 
-    def find_assigned_issue(self, target_username: str) -> Issue | None:
-        """Find an open issue assigned to the specified username."""
-        for issue in self.get_open_issues():
-            if issue.assignee and issue.assignee.login == target_username:
-                return issue
-        return None
 
     def create_pull_request(
           self,
