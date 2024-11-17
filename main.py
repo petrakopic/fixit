@@ -62,9 +62,15 @@ def push_branch(git_client, branch_name):
     logging.info("****** Pushed branch")
 
 
-def create_pull_request(github_client, issue, branch_name):
-    github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}", title=f"Fixit for issue {issue.number}")
+def create_pull_request(github_client, issue, branch_name, author):
+    pr = github_client.create_pull_request("main", branch_name, body=f"This is the result of fixit for issue {issue.number}\n\ncc @{author}", title=f"Fixit for issue {issue.number}")
     logging.info("****** Creating pull request********")
+    return pr
+
+
+def comment_on_issue(github_client, issue, pr_url):
+    issue.create_comment(f"A pull request has been created to address this issue: {pr_url}")
+    logging.info("****** Commented on the issue ********")
 
 
 def main():
@@ -97,7 +103,8 @@ def main():
     result = execute_instructions(coder, instructions)
 
     push_branch(git_client, branch_name)
-    create_pull_request(github_client, issue, branch_name)
+    pr = create_pull_request(github_client, issue, branch_name, issue.user.login)
+    comment_on_issue(github_client, issue, pr.html_url)
 
     print("\n\n")
     print(result)
