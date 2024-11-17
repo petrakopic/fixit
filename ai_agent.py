@@ -8,6 +8,10 @@ from aider.models import Model
 from config import MODEL
 
 
+class AiderException(Exception):
+    pass
+
+
 class AiderClientConfig:
     """Configuration class for Aider client"""
 
@@ -100,7 +104,7 @@ class AiderClient:
 
         except Exception as e:
             self.logger.error(f"Failed to initialize Aider: {str(e)}")
-            raise
+            raise AiderException("Failed to initialize Aider")
 
     def run(self, instructions: str | list) -> str:
         """Run one or more instructions through Aider"""
@@ -115,7 +119,7 @@ class AiderClient:
             return result or "Commands executed successfully"
         except Exception as e:
             self.logger.error(f"Failed to execute instructions: {str(e)}")
-            raise
+            raise AiderException("Failed to execute instructions")
 
     def add_files(self, files: list[str]) -> None:
         """Add additional files to the chat context"""
@@ -128,4 +132,4 @@ class AiderClient:
                 self.logger.info(f"Added file to context: {file}")
             except Exception as e:
                 self.logger.error(f"Failed to add file {file}: {str(e)}")
-                raise
+                raise AiderException(f"Failed to add file {file}")
