@@ -3,9 +3,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 from aider.coders import Coder
 from aider.models import Model
-
 from aider.io import InputOutput
-
 from config import MODEL
 
 
@@ -57,15 +55,21 @@ class AiderClient:
     def initialize(self, files: List[str]) -> None:
         """Initialize the Aider coder with files and configurations"""
         try:
+            io = InputOutput(yes=True)
             conventions = self.config.read_conventions()
 
-            # Create InputOutput with yes flag
-            io = InputOutput(yes=True)
+            # Use existing conventions file if it exists
+            if conventions:
+                # Add conventions file as read-only reference
+                read_only_files = [self.config.conventions_path]
+            else:
+                read_only_files = None
 
-            # Create coder instance
+            # Create coder instance with conventions as read-only file
             self.coder = Coder.create(
                 main_model=self.model,
                 fnames=files,
+                read_only_fnames=read_only_files,
                 show_diffs=self.config.show_diffs,
                 auto_commits=self.config.auto_commits,
                 io=io
@@ -74,18 +78,15 @@ class AiderClient:
             # Add conventions if they exist
             if conventions:
                 self.logger.info("Adding code conventions to chat context")
-                self.coder.done_messages.extend([
+                # Add an explicit instruction to follow conventions
+                self.coder.cur_messages.extend([
                     {
-                        "role": "system",
-                        "content": "Please follow these code conventions for all changes:"
-                    },
-                    {
-                        "role": "system",
-                        "content": conventions
+                        "role": "user",
+                        "content": "Please review the conventions in .conventions_readonly.md and ensure all changes follow these guidelines."
                     },
                     {
                         "role": "assistant",
-                        "content": "I will follow these code conventions in all my changes."
+                        "content": "I've reviewed the conventions and will ensure all changes follow these guidelines."
                     }
                 ])
 
